@@ -6,7 +6,7 @@ import (
 
 	"github.com/boombuler/barcode"
 	"github.com/boombuler/barcode/code128"
-	"github.com/indiependente/barcode/barcodegen"
+	"github.com/indiependente/barcode/pkg/barcodegen"
 	"github.com/pkg/errors"
 )
 
