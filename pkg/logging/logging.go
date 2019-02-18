@@ -30,7 +30,7 @@ func (lk LogKey) String() string {
 
 // Each LogKey appearing in the logs is defined in the following const block.
 const (
-	CodeKey LogKey = "code"
+	CodeKey        LogKey = "code"
 	ElapsedTimeKey LogKey = "elapsed_time"
 	ServiceKey     LogKey = "service"
 )

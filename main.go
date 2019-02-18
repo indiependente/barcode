@@ -2,6 +2,8 @@ package main
 
 import (
 	"net/http"
+	"os"
+	"strings"
 
 	"github.com/indiependente/barcode/pkg/barcodegen/barcode128"
 	"github.com/indiependente/barcode/pkg/handlers"
@@ -11,8 +13,14 @@ import (
 const serviceName = "barcode"
 
 func main() {
+	var logger *logging.Logger
+	debug := strings.EqualFold(os.Getenv("LOG_LEVEL"), "DEBUG")
 
-	logger := logging.GetLogger(serviceName, logging.DEBUG)
+	if debug {
+		logger = logging.GetLogger(serviceName, logging.DEBUG)
+	} else {
+		logger = logging.GetLogger(serviceName, logging.INFO)
+	}
 	bcgen := &barcode128.Code128Barcoder{}
 	srv := &handlers.BarcodeServer{
 		Bcg:    bcgen,
