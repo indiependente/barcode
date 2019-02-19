@@ -38,7 +38,7 @@ func (srv *BarcodeServer) sendBarcode(bcgen barcodegen.Barcoder, w io.Writer, r 
 	if err != nil {
 		return errors.Wrap(err, "Could not convert to barcode")
 	}
-	if err := writePNG(w, 200, img); err != nil {
+	if err := writePNG(w, http.StatusOK, img); err != nil {
 		return errors.Wrapf(err, "Could not send barcode")
 	}
 	return nil
