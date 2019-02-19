@@ -1,14 +1,17 @@
 package handlers
 
 import (
+	"fmt"
 	"image"
 	"image/png"
 	"io"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/indiependente/barcode/pkg/barcodegen"
 	"github.com/indiependente/barcode/pkg/logging"
+	"github.com/julienschmidt/httprouter"
 	"github.com/pkg/errors"
 )
 
@@ -17,31 +20,46 @@ type BarcodeServer struct {
 	Logger *logging.Logger
 }
 
-func (srv *BarcodeServer) GetBarcode(w http.ResponseWriter, r *http.Request) {
-	srv.Logger.Debug("request received")
-	start := time.Now()
-	err := srv.sendBarcode(srv.Bcg, w, r)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-	srv.Logger.ElapsedTime(time.Since(start)).Debug("request processed")
+func (srv *BarcodeServer) Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	fmt.Fprint(w, "Welcome!\n")
 }
 
-func (srv *BarcodeServer) sendBarcode(bcgen barcodegen.Barcoder, w io.Writer, r *http.Request) error {
-	code, ok := r.URL.Query()["code"]
-	if !ok || len(code) < 1 {
-		return errors.Wrap(ErrMissingCode, "Could not read code parameter in URL")
+func (srv *BarcodeServer) GetBarcode(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+	srv.Logger.Debug("GetBarcode request received")
+	start := time.Now()
+
+	code := params.ByName("code")
+	l := srv.Logger.CodeID(code)
+
+	// sanity checks
+	if len(code) < 1 {
+		err := errors.Wrap(ErrMissingCode, "Could not read code parameter in URL")
+		l.Error("processing failed", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
-	srv.Logger.Code(code[0]).Debug("code received")
-	data := []byte(code[0])
-	img, err := bcgen.Barcode(data)
+	if !isValidData(code) {
+		err := errors.Wrap(barcodegen.ErrInvalidData, "Could not generate barcode")
+		l.Error("processing failed", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	// generate image
+	img, err := srv.Bcg.Barcode([]byte(code))
 	if err != nil {
-		return errors.Wrap(err, "Could not convert to barcode")
+		err := errors.Wrap(err, "Could not convert to barcode")
+		l.Error("processing failed", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
-	if err := writePNG(w, http.StatusOK, img); err != nil {
-		return errors.Wrapf(err, "Could not send barcode")
+	err = writePNG(w, http.StatusOK, img)
+	if err != nil {
+		err := errors.Wrap(err, "Could not write response")
+		l.Error("processing failed", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
-	return nil
+	l.ElapsedTime(time.Since(start)).Debug("GetBarcode request processed")
 }
 
 func writePNG(w io.Writer, status int, img image.Image) error {
@@ -50,4 +68,17 @@ func writePNG(w io.Writer, status int, img image.Image) error {
 		return errors.Wrap(err, "Could not encode to png")
 	}
 	return nil
+}
+
+func isValidData(data string) bool {
+	if len(data) != 20 {
+		return false
+	}
+	for _, c := range data {
+		_, err := strconv.ParseInt(string(c), 10, 32)
+		if err != nil {
+			return false
+		}
+	}
+	return true
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/indiependente/barcode/pkg/barcodegen/barcode128"
 	"github.com/indiependente/barcode/pkg/handlers"
 	"github.com/indiependente/barcode/pkg/logging"
+	"github.com/julienschmidt/httprouter"
 )
 
 const serviceName = "barcode"
@@ -27,7 +28,10 @@ func main() {
 		Logger: logger,
 	}
 
-	http.HandleFunc("/barcode128", srv.GetBarcode)
+	router := httprouter.New()
+	router.GET("/", srv.Index)
+	router.GET("/barcode128/:code", srv.GetBarcode)
+
 	logger.Info("Starting server on port 8080...")
-	logger.Fatal("server stopped unexpectedly", http.ListenAndServe(":8080", nil))
+	logger.Fatal("server stopped unexpectedly", http.ListenAndServe(":8080", router))
 }

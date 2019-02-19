@@ -32,7 +32,7 @@ func (lk LogKey) String() string {
 // Each LogKey appearing in the logs is defined in the following const block.
 const (
 	CallerKey      LogKey = "caller"
-	CodeKey        LogKey = "code"
+	CodeKey        LogKey = "code_id"
 	ElapsedTimeKey LogKey = "elapsed_time"
 	ServiceKey     LogKey = "service"
 )
@@ -47,7 +47,7 @@ type Logger struct {
 // The functions invocations can be chained and terminated by one of the levelled function calls (Fatal, Error, Warn, Info).
 type LogChainer interface {
 	ElapsedTime(dur time.Duration) LogChainer
-	Code(c string) LogChainer
+	CodeID(c string) LogChainer
 	// These are the last functions that should be called on a log chain.
 	// These will execute and log all the information
 	Panic(msg string)
@@ -66,7 +66,7 @@ func (l *Logger) ElapsedTime(dur time.Duration) LogChainer {
 }
 
 // Code instructs the logger to log the input code.
-func (l *Logger) Code(c string) LogChainer {
+func (l *Logger) CodeID(c string) LogChainer {
 	lcopy := *l
 	lcopy.Zero = l.Zero.With().Str(CodeKey.String(), c).Logger()
 	return &lcopy
