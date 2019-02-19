@@ -1,6 +1,7 @@
 package logging
 
 import (
+	"runtime"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -30,6 +31,7 @@ func (lk LogKey) String() string {
 
 // Each LogKey appearing in the logs is defined in the following const block.
 const (
+	CallerKey      LogKey = "caller"
 	CodeKey        LogKey = "code"
 	ElapsedTimeKey LogKey = "elapsed_time"
 	ServiceKey     LogKey = "service"
@@ -74,38 +76,66 @@ func (l *Logger) Code(c string) LogChainer {
 // It stops the ordinary flow of a goroutine.
 // The log payload will contain everything else the logger has been instructed to log.
 func (l *Logger) Panic(msg string) {
-	l.Zero.Panic().Msg(msg)
+	l.Zero.Panic().Str(CallerKey.String(), getCallerFunctionName()).Msg(msg)
 }
 
 // Fatal logs the message and the error at fatal level.
 // It after exits with os.Exit(1).
 // The log payload will contain everything else the logger has been instructed to log.
 func (l *Logger) Fatal(msg string, err error) {
-	l.Zero.Fatal().AnErr("error", err).Msg(msg)
+	l.Zero.Fatal().AnErr("error", err).Str(CallerKey.String(), getCallerFunctionName()).Msg(msg)
 }
 
 // Error logs the message and the error at error level.
 // The log payload will contain everything else the logger has been instructed to log.
 func (l *Logger) Error(msg string, err error) {
-	l.Zero.Error().AnErr("error", err).Msg(msg)
+	l.Zero.Error().AnErr("error", err).Str(CallerKey.String(), getCallerFunctionName()).Msg(msg)
 }
 
 // Warn logs the message at warning level.
 // The log payload will contain everything else the logger has been instructed to log.
 func (l *Logger) Warn(msg string) {
-	l.Zero.Warn().Msg(msg)
+	l.Zero.Warn().Str(CallerKey.String(), getCallerFunctionName()).Msg(msg)
 }
 
 // Info logs the message at info level.
 // The log payload will contain everything else the logger has been instructed to log.
 func (l *Logger) Info(msg string) {
-	l.Zero.Info().Msg(msg)
+	l.Zero.Info().Str(CallerKey.String(), getCallerFunctionName()).Msg(msg)
 }
 
 // Debug logs the message at debug level.
 // The log payload will contain everything else the logger has been instructed to log.
 func (l *Logger) Debug(msg string) {
-	l.Zero.Debug().Msg(msg)
+	l.Zero.Debug().Str(CallerKey.String(), getCallerFunctionName()).Msg(msg)
+}
+
+func getCallerFunctionName() string {
+	// Skip GetCallerFunctionName and the function to get the caller of
+	return getFrame(2).Function
+}
+
+func getFrame(skipFrames int) runtime.Frame {
+	// We need the frame at index skipFrames+2, since we never want runtime.Callers and getFrame
+	targetFrameIndex := skipFrames + 2
+
+	// Set size to targetFrameIndex+2 to ensure we have room for one more caller than we need
+	programCounters := make([]uintptr, targetFrameIndex+2)
+	n := runtime.Callers(0, programCounters)
+
+	frame := runtime.Frame{Function: "unknown"}
+	if n > 0 {
+		frames := runtime.CallersFrames(programCounters[:n])
+		for more, frameIndex := true, 0; more && frameIndex <= targetFrameIndex; frameIndex++ {
+			var frameCandidate runtime.Frame
+			frameCandidate, more = frames.Next()
+			if frameIndex == targetFrameIndex {
+				frame = frameCandidate
+			}
+		}
+	}
+
+	return frame
 }
 
 // GetLogger returns a pointer to a Logger that logs from logLevel and above.
