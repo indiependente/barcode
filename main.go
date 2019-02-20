@@ -8,6 +8,7 @@ import (
 	"github.com/indiependente/barcode/pkg/barcodegen/barcode128"
 	"github.com/indiependente/barcode/pkg/handlers"
 	"github.com/indiependente/barcode/pkg/logging"
+	"github.com/indiependente/barcode/pkg/store/redis"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -22,10 +23,15 @@ func main() {
 	} else {
 		logger = logging.GetLogger(serviceName, logging.INFO)
 	}
+
+	redisAddr := os.Getenv("REDIS_ADDR")
+	redisPort := os.Getenv("REDIS_PORT")
+	store := redis.InitStore(redisAddr + ":" + redisPort)
 	bcgen := &barcode128.Code128Barcoder{}
 	srv := &handlers.BarcodeServer{
 		Bcg:    bcgen,
 		Logger: logger,
+		Store:  store,
 	}
 
 	router := httprouter.New()

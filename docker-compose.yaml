@@ -1,9 +1,20 @@
 version: '3.3'
 
 services:
+  redis:
+    image: redis:latest
+    ports:
+     - 6379:6379
+
   barcode-generator:
     image: indiependente/barcode
+    links:
+      - redis
     ports:
      - 8080:8080
     environment:
      - LOG_LEVEL=DEBUG
+     - REDIS_ADDR=redis
+     - REDIS_PORT=6379
+    depends_on:
+      - redis
