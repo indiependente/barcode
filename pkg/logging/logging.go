@@ -35,6 +35,7 @@ const (
 	CodeKey        LogKey = "code_id"
 	ElapsedTimeKey LogKey = "elapsed_time"
 	ServiceKey     LogKey = "service"
+	SignalKey      LogKey = "signal"
 )
 
 // Logger implements the LogChainer interface and relies on http://github.com/rs/zerolog
@@ -48,6 +49,8 @@ type Logger struct {
 type LogChainer interface {
 	ElapsedTime(dur time.Duration) LogChainer
 	CodeID(c string) LogChainer
+	Signal(s string) LogChainer
+
 	// These are the last functions that should be called on a log chain.
 	// These will execute and log all the information
 	Panic(msg string)
@@ -65,10 +68,17 @@ func (l *Logger) ElapsedTime(dur time.Duration) LogChainer {
 	return &lcopy
 }
 
-// Code instructs the logger to log the input code.
+// CodeID instructs the logger to log the input code.
 func (l *Logger) CodeID(c string) LogChainer {
 	lcopy := *l
 	lcopy.Zero = l.Zero.With().Str(CodeKey.String(), c).Logger()
+	return &lcopy
+}
+
+// Signal instructs the logger to log the input code.
+func (l *Logger) Signal(s string) LogChainer {
+	lcopy := *l
+	lcopy.Zero = l.Zero.With().Str(SignalKey.String(), s).Logger()
 	return &lcopy
 }
 

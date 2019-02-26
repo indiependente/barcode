@@ -3,7 +3,9 @@ package main
 import (
 	"net/http"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 
 	"github.com/indiependente/barcode/pkg/logging"
 	"github.com/indiependente/barcode/services/backend/barcodegen/barcode128"
@@ -37,6 +39,16 @@ func main() {
 	router := httprouter.New()
 	router.GET("/", srv.Index)
 	router.GET("/barcode128/:code", srv.GetBarcode)
+
+	var gracefulStop = make(chan os.Signal)
+	signal.Notify(gracefulStop, syscall.SIGTERM)
+	signal.Notify(gracefulStop, syscall.SIGINT)
+	go func() {
+		sig := <-gracefulStop
+		logger.Signal(sig.String()).Info("Shutting server down...")
+		// perform teardown operations here
+		os.Exit(0)
+	}()
 
 	logger.Info("Starting server on port 8080...")
 	logger.Fatal("server stopped unexpectedly", http.ListenAndServe(":8080", router))
