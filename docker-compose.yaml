@@ -7,7 +7,7 @@ services:
      - 6379:6379
 
   backend:
-    image: indiependente/barcode_backend
+    image: indiependente/barcode-backend
     links:
       - redis
     ports:
