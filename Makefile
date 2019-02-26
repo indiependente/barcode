@@ -10,11 +10,13 @@ clean: docker-clean
 	@rm service
 
 deps:
-	@GO111MODULE=on go mod download
+	rm go.mod go.sum
+	@GO111MODULE=on go mod init
 	@GO111MODULE=on go mod tidy
+	@GO111MODULE=on go mod download
 
 docker: fmt lint build
-	@docker build . -t indiependente/barcode
+	@docker build . -t indiependente/barcode_backend
 
 docker-clean:
 	@docker rmi $$(docker images | grep barcode | awk '{print $$3}') --force

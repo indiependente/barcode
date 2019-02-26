@@ -10,10 +10,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/indiependente/barcode/pkg/store"
-
-	"github.com/indiependente/barcode/pkg/barcodegen"
 	"github.com/indiependente/barcode/pkg/logging"
+	"github.com/indiependente/barcode/services/backend/barcodegen"
+	"github.com/indiependente/barcode/services/backend/store"
 	"github.com/julienschmidt/httprouter"
 	"github.com/pkg/errors"
 )
@@ -25,7 +24,7 @@ type BarcodeServer struct {
 }
 
 func (srv *BarcodeServer) Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	fmt.Fprint(w, "Welcome!\n")
+	fmt.Fprint(w, "Welcome!\n") // nolint: errcheck
 }
 
 func (srv *BarcodeServer) GetBarcode(w http.ResponseWriter, r *http.Request, params httprouter.Params) {

@@ -5,14 +5,14 @@ import (
 	"os"
 	"strings"
 
-	"github.com/indiependente/barcode/pkg/barcodegen/barcode128"
-	"github.com/indiependente/barcode/pkg/handlers"
 	"github.com/indiependente/barcode/pkg/logging"
-	"github.com/indiependente/barcode/pkg/store/redis"
+	"github.com/indiependente/barcode/services/backend/barcodegen/barcode128"
+	"github.com/indiependente/barcode/services/backend/handlers"
+	"github.com/indiependente/barcode/services/backend/store/redis"
 	"github.com/julienschmidt/httprouter"
 )
 
-const serviceName = "barcode"
+const serviceName = "barcode_backend"
 
 func main() {
 	var logger *logging.Logger

@@ -6,8 +6,8 @@ services:
     ports:
      - 6379:6379
 
-  barcode-generator:
-    image: indiependente/barcode
+  backend:
+    image: indiependente/barcode_backend
     links:
       - redis
     ports:

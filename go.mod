@@ -1,5 +1,7 @@
 module github.com/indiependente/barcode
 
+go 1.12
+
 require (
 	github.com/boombuler/barcode v1.0.0
 	github.com/go-redis/redis v6.15.1+incompatible
