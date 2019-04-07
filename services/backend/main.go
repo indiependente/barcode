@@ -8,9 +8,9 @@ import (
 	"syscall"
 
 	"github.com/indiependente/barcode/pkg/logging"
+	"github.com/indiependente/barcode/pkg/store/redis"
 	"github.com/indiependente/barcode/services/backend/barcodegen/barcode128"
 	"github.com/indiependente/barcode/services/backend/handlers"
-	"github.com/indiependente/barcode/services/backend/store/redis"
 	"github.com/julienschmidt/httprouter"
 )
 

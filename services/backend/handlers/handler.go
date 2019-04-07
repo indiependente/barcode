@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/indiependente/barcode/pkg/logging"
+	"github.com/indiependente/barcode/pkg/store"
 	"github.com/indiependente/barcode/services/backend/barcodegen"
-	"github.com/indiependente/barcode/services/backend/store"
 	"github.com/julienschmidt/httprouter"
 	"github.com/pkg/errors"
 )

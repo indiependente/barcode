@@ -4,7 +4,7 @@ THIS_FILE = $(lastword $(MAKEFILE_LIST))
 PLATFORM_VERSION = $(shell git rev-parse --short HEAD)
 
 .PHONY: all
-all: test fmt lint run
+all: test fmt lint
 
 .PHONY: test
 test:
