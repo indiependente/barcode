@@ -10,9 +10,11 @@ all: test fmt lint
 test:
 	@GO111MODULE=on go test -cover -race ./...
 
-.PHONY: build
-build:
-	@GO111MODULE=on go build -o service
+.PHONY: build-all
+build-all:
+	@for dir in $(SERVICE_DIRS); do \
+		@GO111MODULE=on go build -ldflags="-s -w" -o $$dir \
+	done
 
 .PHONY: clean
 clean: docker-clean
