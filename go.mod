@@ -3,7 +3,7 @@ module github.com/indiependente/barcode
 go 1.12
 
 require (
-	github.com/boombuler/barcode v1.0.0
+	github.com/boombuler/barcode v1.0.1
 	github.com/go-redis/redis v6.15.2+incompatible
 	github.com/julienschmidt/httprouter v1.2.0
 	github.com/onsi/ginkgo v1.8.0 // indirect
